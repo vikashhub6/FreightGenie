@@ -1,9 +1,9 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const http = require("http");
 const { Server } = require("socket.io");
 const connectDB = require("./config/db");
-require("dotenv").config();
 
 const app = express();
 const server = http.createServer(app);
@@ -13,16 +13,15 @@ const io = new Server(server, {
 
 connectDB();
 
-
 app.use(cors({
   origin: process.env.FRONTEND_URL,
   credentials: true
 }));
-
+app.options("*", cors());
 
 app.use(express.json());
 
-//  Socket.io setup
+// Socket.io setup
 const forwarderSockets = {};
 io.on("connection", (socket) => {
   socket.on("join-forwarder", (userId) => {
@@ -46,7 +45,7 @@ app.set("emitToForwarder", (userId, event, data) => {
   if (socketId) io.to(socketId).emit(event, data);
 });
 
-//  Routes
+// Routes
 app.use("/api/auth",          require("./routes/authRoutes"));
 app.use("/api/shipments",     require("./routes/shipmentRoutes"));
 app.use("/api/compliance",    require("./routes/complianceRoutes"));
@@ -56,4 +55,4 @@ app.use("/api/exporter",      require("./routes/exporterRoutes"));
 app.use("/api/notifications", require("./routes/notificationRoutes"));
 
 const PORT = process.env.PORT || 5123;
-server.listen(PORT, () => console.log(` Server running on port ${PORT}!`));
+server.listen(PORT, () => console.log(`Server running on port ${PORT}!`));

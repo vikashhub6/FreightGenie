@@ -33,16 +33,22 @@ export default function ProfileDocsTab({ shipment }) {
               <span className="text-xl">📄</span>
               <div className="flex-1">
                 <p className="text-sm text-white">{doc.originalName || doc.name}</p>
-                <p className="text-xs text-slate-500">{doc.type} • {new Date(doc.uploadedAt).toLocaleDateString("en-IN")}</p>
+                <p className="text-xs text-slate-500 capitalize">
+                  {doc.type} • {doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString("en-IN") : "—"}
+                </p>
               </div>
-              <a
-                href={`${process.env.REACT_APP_API_URL?.replace("/api", "") || "http://localhost:5003"}/uploads/${doc.name}`}
-                target="_blank"
-                rel="noreferrer"
-                className="text-xs text-blue-400 hover:text-blue-300"
-              >
-                View →
-              </a>
+              {doc.cloudinaryUrl ? (
+                <a
+                  href={doc.cloudinaryUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs text-blue-400 hover:text-blue-300 whitespace-nowrap"
+                >
+                  View →
+                </a>
+              ) : (
+                <span className="text-xs text-slate-600">No URL</span>
+              )}
             </div>
           ))}
         </div>

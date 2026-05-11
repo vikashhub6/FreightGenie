@@ -22,12 +22,12 @@ function detectDocType(filename) {
 async function uploadToCloudinary(file) {
   return new Promise((resolve, reject) => {
     const ext = path.extname(file.originalname).toLowerCase();
-    
-    const resourceType = "auto";
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder: "shipchain/documents",
-        resource_type: resourceType,
+        resource_type: "auto",
+        type: "upload",
+        access_mode: "public",
         public_id: `${Date.now()}-${file.originalname.replace(/\s+/g, "_")}`,
       },
       (error, result) => {

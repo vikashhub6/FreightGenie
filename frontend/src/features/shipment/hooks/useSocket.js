@@ -8,8 +8,15 @@ const useSocket = (shipmentId, onStatusUpdate) => {
 
   useEffect(() => {
     if (!shipmentId) return;
+    const socketUrl = process.env.REACT_APP_SOCKET_URL;
+    if (!socketUrl) {
+      console.error(
+        "Missing REACT_APP_SOCKET_URL in environment. Socket not connected.",
+      );
+      return;
+    }
 
-    socketRef.current = io(process.env.REACT_APP_SOCKET_URL || "http://localhost:5000");
+    socketRef.current = io(socketUrl);
     socketRef.current.emit("join-shipment", shipmentId);
 
     socketRef.current.on("status", (data) => {

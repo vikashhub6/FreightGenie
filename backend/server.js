@@ -14,8 +14,9 @@ const io = new Server(server, {
 connectDB();
 
 
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: "https://freight-genie.vercel.app",
   credentials: true
 }));
 app.use(express.json());

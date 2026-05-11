@@ -14,11 +14,12 @@ const io = new Server(server, {
 connectDB();
 
 
-
 app.use(cors({
-  origin: "https://freight-genie.vercel.app",
+  origin: process.env.FRONTEND_URL,
   credentials: true
 }));
+
+
 app.use(express.json());
 
 //  Socket.io setup

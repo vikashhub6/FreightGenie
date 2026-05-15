@@ -7,23 +7,49 @@ const client = new OpenAI({
 });
 
 async function callGroq(systemPrompt, userPrompt) {
-  const response = await client.chat.completions.create({
-    model: "llama-3.3-70b-versatile",
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt },
-    ],
-    temperature: 0.2,
-    max_tokens: 2000,
-  });
-
-  const text = response.choices[0].message.content;
+  console.log("🌐 [GROQ-REQUEST] Calling GROQ API...");
+  console.log("   Model: llama-3.3-70b-versatile");
+  console.log("   API Key configured:", !!process.env.GROQ_API_KEY);
+  
   try {
-    const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-    const match = cleaned.match(/\{[\s\S]*\}/);
-    return match ? JSON.parse(match[0]) : JSON.parse(cleaned);
-  } catch {
-    return { raw: text };
+    const response = await client.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      temperature: 0.2,
+      max_tokens: 2000,
+    });
+
+    console.log("✅ [GROQ-RESPONSE] Received response");
+    console.log("   Content length:", response.choices[0].message.content.length);
+
+    const text = response.choices[0].message.content;
+    try {
+      const cleaned = text
+        .replace(/```json\n?/g, "")
+        .replace(/```\n?/g, "")
+        .trim();
+      const match = cleaned.match(/\{[\s\S]*\}/);
+      const parsed = match ? JSON.parse(match[0]) : JSON.parse(cleaned);
+      console.log("✅ [JSON-PARSED] Successfully parsed GROQ response");
+      console.log("   Fields:", Object.keys(parsed).join(", "));
+      return parsed;
+    } catch (parseErr) {
+      console.error("⚠️ [JSON-PARSE-ERROR] Failed to parse JSON");
+      console.error("   Error:", parseErr.message);
+      return { raw: text };
+    }
+  } catch (apiErr) {
+    console.error("❌ [GROQ-API-ERROR] GROQ API call failed");
+    console.error("   Error:", apiErr.message);
+    console.error("   Error type:", apiErr.constructor.name);
+    if (apiErr.response) {
+      console.error("   HTTP Status:", apiErr.response.status);
+      console.error("   Response:", apiErr.response.data);
+    }
+    throw apiErr;
   }
 }
 
@@ -31,11 +57,19 @@ async function runFullAIAnalysis(documents, shipmentInfo) {
   const hasDocuments = documents && documents.length > 0;
 
   const uploadedDocsList = hasDocuments
-    ? documents.map((d) => `- ${d.type?.toUpperCase() || "OTHER"}: ${d.name} ${d.text ? `(${d.text.slice(0, 400).replace(/\n/g, " ")}...)` : "(no text extracted)"}`).join("\n")
+    ? documents
+        .map(
+          (d) =>
+            `- ${d.type?.toUpperCase() || "OTHER"}: ${d.name} ${d.text ? `(${d.text.slice(0, 400).replace(/\n/g, " ")}...)` : "(no text extracted)"}`,
+        )
+        .join("\n")
     : "No documents uploaded yet";
 
   const fullDocText = hasDocuments
-    ? documents.map((d) => `=== ${d.name} ===\n${d.text || "(image/no text)"}`).join("\n\n").slice(0, 4000)
+    ? documents
+        .map((d) => `=== ${d.name} ===\n${d.text || "(image/no text)"}`)
+        .join("\n\n")
+        .slice(0, 4000)
     : "";
 
   return await callGroq(
@@ -83,7 +117,7 @@ Respond with EXACT JSON:
   "issues": ["<specific issues found>"],
   "suggestions": ["<specific actionable recommendations>"],
   "regulatoryNotes": "<special regulations for this route>"
-}`
+}`,
   );
 }
 
@@ -97,7 +131,8 @@ async function generateEmailDraft(shipment) {
     messages: [
       {
         role: "system",
-        content: "You are a professional freight forwarder. Write clear compliance emails. Respond ONLY with valid JSON. Use \\n for line breaks.",
+        content:
+          "You are a professional freight forwarder. Write clear compliance emails. Respond ONLY with valid JSON. Use \\n for line breaks.",
       },
       {
         role: "user",
@@ -126,7 +161,10 @@ Return JSON only:
 
   const text = response.choices[0].message.content;
   try {
-    const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    const cleaned = text
+      .replace(/```json\n?/g, "")
+      .replace(/```\n?/g, "")
+      .trim();
     const match = cleaned.match(/\{[\s\S]*\}/);
     if (match) {
       const parsed = JSON.parse(match[0]);
@@ -139,7 +177,7 @@ Return JSON only:
 
   return {
     subject: `Compliance Report — ${shipment.shipmentId} | Score: ${report.score}/100`,
-    body: `Dear ${shipment.exporterName || "Exporter"},\n\nPlease find below the compliance analysis for your shipment.\n\nShipment ID: ${shipment.shipmentId}\nProduct: ${shipment.product}\nRoute: ${shipment.origin} → ${shipment.destination}\nScore: ${report.score}/100\nRisk: ${report.riskLevel?.toUpperCase()}\n\n${report.summary || ""}\n\n${report.missingDocs?.length ? `MISSING DOCUMENTS:\n${report.missingDocs.map(d => `• ${d}`).join("\n")}\n\n` : ""}HS Code: ${report.hsCode || "TBD"}\nFreight: ${report.freightCost || "TBD"}\nDuty: ${report.dutyEstimate || "TBD"}\nTotal: ${report.totalCost || "TBD"}\n\nBest regards,\nFreight Forwarding Team`,
+    body: `Dear ${shipment.exporterName || "Exporter"},\n\nPlease find below the compliance analysis for your shipment.\n\nShipment ID: ${shipment.shipmentId}\nProduct: ${shipment.product}\nRoute: ${shipment.origin} → ${shipment.destination}\nScore: ${report.score}/100\nRisk: ${report.riskLevel?.toUpperCase()}\n\n${report.summary || ""}\n\n${report.missingDocs?.length ? `MISSING DOCUMENTS:\n${report.missingDocs.map((d) => `• ${d}`).join("\n")}\n\n` : ""}HS Code: ${report.hsCode || "TBD"}\nFreight: ${report.freightCost || "TBD"}\nDuty: ${report.dutyEstimate || "TBD"}\nTotal: ${report.totalCost || "TBD"}\n\nBest regards,\nFreight Forwarding Team`,
   };
 }
 

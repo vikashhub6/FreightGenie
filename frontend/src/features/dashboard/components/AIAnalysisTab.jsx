@@ -1,19 +1,45 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import api from "../../../api/axiosInstance";
+import useSocket from "../../shipment/hooks/useSocket";
 
 export default function AIAnalysisTab({ shipment, onUpdate }) {
   const [loading, setLoading] = useState(false);
+  const [statusMsg, setStatusMsg] = useState("");
   const report = shipment.complianceReport;
+
+  // ✅ Socket se real-time status sun — jab AI done ho, report aa jaayegi
+  useSocket(shipment._id, async (data) => {
+    setStatusMsg(data.message || "");
+
+    // Jab AI done ho (report aaya socket mein) ya status change ho
+    if (data.status === "awaiting_review" || data.report) {
+      setLoading(false);
+      // Fresh shipment fetch karo DB se (report ke saath)
+      try {
+        const res = await api.get(`/shipments/${shipment._id}`);
+        onUpdate(res.data);
+      } catch {
+        // silently ignore
+      }
+    }
+
+    if (data.status === "error") {
+      setLoading(false);
+      setStatusMsg("❌ AI analysis failed. Dobara try karo.");
+    }
+  });
 
   const runAnalysis = async () => {
     setLoading(true);
+    setStatusMsg("🚀 AI analysis shuru ho rahi hai...");
     try {
-      const res = await api.post(`/compliance/${shipment._id}/analyze`);
-      onUpdate(res.data.shipment);
+      await api.post(`/compliance/${shipment._id}/analyze`);
+      setStatusMsg("📄 AI documents padh raha hai...");
+      // ✅ Yahan wait nahi karna — socket event aayega automatically
     } catch (err) {
-      alert(err.response?.data?.error || "Analysis failed");
-    } finally {
       setLoading(false);
+      setStatusMsg("");
+      alert(err.response?.data?.error || "Analysis failed");
     }
   };
 
@@ -88,6 +114,17 @@ export default function AIAnalysisTab({ shipment, onUpdate }) {
           )}
         </button>
       </div>
+
+      {/* ✅ Real-time socket status message */}
+      {statusMsg && (
+        <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-xs animate-pulse mb-4">
+          <svg className="w-3 h-3 animate-spin shrink-0" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"/>
+          </svg>
+          {statusMsg}
+        </div>
+      )}
 
       {!report ? (
         /* Empty state */

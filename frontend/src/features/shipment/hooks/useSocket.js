@@ -4,7 +4,13 @@ import { io } from "socket.io-client";
 
 const useSocket = (shipmentId, onStatusUpdate) => {
   const socketRef = useRef(null);
+  const callbackRef = useRef(onStatusUpdate); // ✅ stale closure fix
   const [liveLog, setLiveLog] = useState([]);
+
+  // Always keep callbackRef updated without re-connecting socket
+  useEffect(() => {
+    callbackRef.current = onStatusUpdate;
+  }, [onStatusUpdate]);
 
   useEffect(() => {
     if (!shipmentId) return;
@@ -24,11 +30,11 @@ const useSocket = (shipmentId, onStatusUpdate) => {
         { ...data, time: new Date().toLocaleTimeString() },
         ...prev,
       ]);
-      if (onStatusUpdate) onStatusUpdate(data);
+      if (callbackRef.current) callbackRef.current(data); // ✅ hamesha latest callback
     });
 
     return () => socketRef.current?.disconnect();
-  }, [shipmentId]);
+  }, [shipmentId]); // socket sirf shipmentId change pe reconnect kare
 
   return { liveLog };
 };

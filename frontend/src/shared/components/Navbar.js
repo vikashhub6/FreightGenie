@@ -15,7 +15,7 @@ const Navbar = ({ showBack = false, children }) => {
       )}
       <span className="text-2xl cursor-pointer" onClick={() => navigate("/dashboard")}>🚢</span>
       <span className="text-xl font-black cursor-pointer" style={{ fontFamily: "Syne,sans-serif", color: "var(--text-primary)" }}
-        onClick={() => navigate("/dashboard")}>ShipChain</span>
+        onClick={() => navigate("/dashboard")}>FreightGenie</span>
       {children}
     </nav>
   );

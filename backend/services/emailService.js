@@ -6,7 +6,7 @@ async function getTransporter(forwarderId) {
   const forwarder = await User.findById(forwarderId);
   const emailUser = forwarder?.companyEmail || process.env.EMAIL_USER;
   const emailPass = forwarder?.companyEmailPassword || process.env.EMAIL_PASS;
-  const fromName = forwarder?.company || "ShipChain";
+  const fromName = forwarder?.company || "FreightGenie";
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: { user: emailUser, pass: emailPass },
@@ -94,7 +94,7 @@ async function sendUploadAlertEmail(shipment) {
           <p style="background:#eff6ff;padding:12px;border-radius:8px;color:#1e40af;">
             👉 Login to your dashboard and click <strong>"Analyze"</strong> to run AI compliance check.
           </p>
-          <p style="color:#94a3b8;font-size:12px;">Sent by ShipChain System</p>
+          <p style="color:#94a3b8;font-size:12px;">Sent by FreightGenie System</p>
         </div>`,
     });
   } catch (err) {

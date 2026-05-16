@@ -9,24 +9,50 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
+    const savedUser = localStorage.getItem("user");
+
+    if (token && savedUser) {
+      // ✅ Pehle local user se set karo — UI instantly load ho
+      setUser(JSON.parse(savedUser));
+      setLoading(false);
+      // Background mein verify karo
       getMeAPI()
-        .then((res) => setUser(res.data))
-        .catch(() => localStorage.removeItem("token"))
+        .then((res) => {
+          setUser(res.data);
+          localStorage.setItem("user", JSON.stringify(res.data));
+        })
+        .catch(() => {
+          // Token invalid — logout
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          setUser(null);
+        });
+    } else if (token) {
+      getMeAPI()
+        .then((res) => {
+          setUser(res.data);
+          localStorage.setItem("user", JSON.stringify(res.data));
+        })
+        .catch(() => {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+        })
         .finally(() => setLoading(false));
     } else {
       setLoading(false);
     }
   }, []);
 
-
   const saveUser = (token, userData) => {
     localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(userData)); // ✅ user bhi save karo
     setUser(userData);
+    setLoading(false);
   };
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setUser(null);
   };
 

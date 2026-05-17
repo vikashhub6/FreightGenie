@@ -8,16 +8,29 @@ const connectDB = require("./config/db");
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: [process.env.FRONTEND_URL, "https://freight-genie.vercel.app"], methods: ["GET", "POST"] }
+  cors: { origin: process.env.FRONTEND_URL, methods: ["GET", "POST"] }
 });
 
 connectDB();
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://freight-genie.vercel.app',
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
 app.use(cors({
-  origin: [process.env.FRONTEND_URL, "https://freight-genie.vercel.app"],
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
-app.options("*", cors());
+app.options("*", cors({ origin: true, credentials: true }));
 
 app.use(express.json());
 

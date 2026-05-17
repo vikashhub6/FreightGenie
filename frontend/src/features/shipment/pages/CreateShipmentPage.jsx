@@ -24,7 +24,7 @@ export default function CreateShipmentPage() {
       <nav className="bg-white border-b border-gray-100 px-6 py-4 flex items-center gap-4 shadow-sm">
         <button onClick={() => navigate("/dashboard")} className="text-gray-400 hover:text-gray-600 text-xl">←</button>
         <span className="text-2xl">🚢</span>
-        <span className="text-xl font-bold text-blue-700">FreightGenie</span>
+        <span className="text-xl font-bold text-blue-700">ShipChain</span>
       </nav>
       <div className="max-w-xl mx-auto px-4 py-10">
         <h1 className="text-2xl font-bold mb-1">Create New Shipment</h1>

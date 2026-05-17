@@ -90,7 +90,7 @@ export default function ShipmentDetailPage() {
         <button onClick={() => navigate("/dashboard")}
           className="text-lg transition-colors hover:text-white" style={{ color: "var(--text-muted)" }}>←</button>
         <span className="text-xl">🚢</span>
-        <span className="text-lg font-bold" style={{ fontFamily: "Syne,sans-serif", color: "var(--text-primary)" }}>FreightGenie</span>
+        <span className="text-lg font-bold" style={{ fontFamily: "Syne,sans-serif", color: "var(--text-primary)" }}>ShipChain</span>
       </nav>
 
       <div className="max-w-6xl mx-auto px-4 py-6">

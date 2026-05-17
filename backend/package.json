@@ -1,5 +1,5 @@
 {
-  "name": "shipchain-backend",
+  "name": "freightgenie-backend",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
@@ -24,7 +24,6 @@
     "openai": "^4.104.0",
     "pdf-parse": "^1.1.1",
     "pdfkit": "^0.14.0",
-    "resend": "^6.12.3",
     "socket.io": "^4.6.1"
   },
   "devDependencies": {

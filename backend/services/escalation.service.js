@@ -1,1 +1,1 @@
-// Disabled - not needed for ShipChain
+// Disabled - not needed for FreightGenie

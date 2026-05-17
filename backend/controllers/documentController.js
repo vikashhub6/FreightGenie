@@ -24,7 +24,7 @@ async function uploadToCloudinary(file) {
     const ext = path.extname(file.originalname).toLowerCase();
     const uploadStream = cloudinary.uploader.upload_stream(
       {
-        folder: "shipchain/documents",
+        folder: "freightgenie/documents",
         resource_type: "auto",
         type: "upload",
         access_mode: "public",

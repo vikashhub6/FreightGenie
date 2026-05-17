@@ -47,7 +47,7 @@ export default function ExporterUploadPage() {
       <div className="max-w-lg mx-auto pt-10">
         <div className="text-center mb-8">
           <div className="text-4xl mb-2">🚢</div>
-          <h1 className="text-2xl font-bold text-blue-700">ShipChain</h1>
+          <h1 className="text-2xl font-bold text-blue-700">FreightGenie</h1>
           <p className="text-gray-500 text-sm mt-1">Document Upload Portal</p>
         </div>
 

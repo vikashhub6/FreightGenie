@@ -16,7 +16,7 @@ async function generatePDFReport(shipment) {
     const scoreColor = r.score >= 70 ? "#16a34a" : r.score >= 50 ? "#d97706" : "#dc2626";
 
     // Header
-    doc.fontSize(22).fillColor("#1e40af").text("ShipChain Compliance Report", { align: "center" });
+    doc.fontSize(22).fillColor("#1e40af").text("FreightGenie Compliance Report", { align: "center" });
     doc.moveDown(0.5);
     doc.fontSize(11).fillColor("#64748b").text(`Generated: ${new Date().toLocaleString()}`, { align: "center" });
     doc.moveDown();

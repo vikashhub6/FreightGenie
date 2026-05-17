@@ -1,21 +1,23 @@
-const { Resend } = require("resend");
+const nodemailer = require("nodemailer");
 const User = require("../models/User");
 require("dotenv").config();
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-async function getFromInfo(forwarderId) {
+async function getTransporter(forwarderId) {
   const forwarder = await User.findById(forwarderId);
+  const emailUser = forwarder?.companyEmail || process.env.EMAIL_USER;
+  const emailPass = forwarder?.companyEmailPassword || process.env.EMAIL_PASS;
   const fromName = forwarder?.company || "FreightGenie";
-  // Resend free tier mein sirf verified domain ya onboarding@resend.dev use hoga
-  const fromEmail = process.env.RESEND_FROM || "onboarding@resend.dev";
-  return { fromName, fromEmail };
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: { user: emailUser, pass: emailPass },
+  });
+  return { transporter, emailUser, fromName };
 }
 
 async function sendInviteEmail(to, accessLink, shipmentInfo, forwarderId) {
-  const { fromName, fromEmail } = await getFromInfo(forwarderId);
-  await resend.emails.send({
-    from: `${fromName} <${fromEmail}>`,
+  const { transporter, emailUser, fromName } = await getTransporter(forwarderId);
+  await transporter.sendMail({
+    from: `"${fromName}" <${emailUser}>`,
     to,
     subject: `Action Required: Upload Documents for Shipment ${shipmentInfo.shipmentId}`,
     html: `
@@ -40,19 +42,21 @@ async function sendInviteEmail(to, accessLink, shipmentInfo, forwarderId) {
 }
 
 async function sendComplianceEmail(to, subject, body, attachmentPath, forwarderId) {
-  const { fromName, fromEmail } = await getFromInfo(forwarderId);
-  await resend.emails.send({
-    from: `${fromName} <${fromEmail}>`,
+  const { transporter, emailUser, fromName } = await getTransporter(forwarderId);
+  const mailOptions = {
+    from: `"${fromName}" <${emailUser}>`,
     to,
     subject,
     html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;padding:24px;white-space:pre-wrap;">${body.replace(/\n/g, "<br/>")}</div>`,
-  });
+  };
+  if (attachmentPath) mailOptions.attachments = [{ filename: "compliance-report.pdf", path: attachmentPath }];
+  await transporter.sendMail(mailOptions);
 }
 
 async function sendMissingDocsAlert(to, missingDocs, shipmentId, forwarderId) {
-  const { fromName, fromEmail } = await getFromInfo(forwarderId);
-  await resend.emails.send({
-    from: `${fromName} <${fromEmail}>`,
+  const { transporter, emailUser, fromName } = await getTransporter(forwarderId);
+  await transporter.sendMail({
+    from: `"${fromName}" <${emailUser}>`,
     to,
     subject: `⚠️ Missing Documents Alert — Shipment ${shipmentId}`,
     html: `
@@ -70,11 +74,11 @@ async function sendMissingDocsAlert(to, missingDocs, shipmentId, forwarderId) {
 
 async function sendUploadAlertEmail(shipment) {
   try {
-    const { fromName, fromEmail } = await getFromInfo(shipment.forwarderId);
+    const { transporter, emailUser, fromName } = await getTransporter(shipment.forwarderId);
     const forwarderUser = await User.findById(shipment.forwarderId);
     if (!forwarderUser?.email) return;
-    await resend.emails.send({
-      from: `${fromName} <${fromEmail}>`,
+    await transporter.sendMail({
+      from: `"${fromName}" <${emailUser}>`,
       to: forwarderUser.email,
       subject: `📤 Documents Uploaded — ${shipment.shipmentId} | ${shipment.product}`,
       html: `

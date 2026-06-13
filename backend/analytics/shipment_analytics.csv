@@ -1,0 +1,2 @@
+shipmentId,date,month,year,origin,destination,route,cargoType,hsCode,shippingMode,paymentTerms,invoiceValue,invoiceCurrency,grossWeight_kg,volume_cbm,packageCount,freightCost,dutyEstimate,totalCost,complianceScore,riskLevel,totalDocs,missingDocsCount,issuesCount,status
+"SC-131079","2026-06-13","June","2026","Mumbai","Dubai","Mumbai → Dubai","textile","5208.11","sea","FOB","3494","USD","24000","19","2000","USD 750-950 (20ft FCL, Mumbai-Dubai, ~7 days)","5% customs duty + 5% VAT = ~10% total","USD 1,500-2,000","40","high","1","5","4","compliance_done"

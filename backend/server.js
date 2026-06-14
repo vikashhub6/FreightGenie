@@ -12,13 +12,13 @@ const io = new Server(server, {
 });
 
 connectDB();
+
 const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:3000",
-  "https://freight-genie.vercel.app",
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://freight-genie.vercel.app',
   process.env.FRONTEND_URL,
 ].filter(Boolean);
-
 
 app.use(cors({
   origin: function(origin, callback) {

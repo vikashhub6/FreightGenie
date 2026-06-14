@@ -41,9 +41,7 @@ def load_data():
     df["date"]            = pd.to_datetime(df["date"], errors="coerce")
     df["complianceScore"] = pd.to_numeric(df["complianceScore"], errors="coerce")
     df["month_year"]      = df["date"].dt.to_period("M").astype(str)
-    # Last 100 shipments only
-    df = df.tail(100).reset_index(drop=True)
-    print(f"✅ Loaded {len(df)} shipments (last 100)")
+    print(f"✅ Loaded {len(df)} shipments")
     return df
 
 # ── Chart 1: Route Analysis ───────────────────────────────────────

@@ -96,9 +96,9 @@
 
   /* ─── Inputs ─── */
   .input {
-    @apply w-full px-4 py-2.5 rounded-xl text-sm text-white placeholder-slate-600
+    @apply w-full px-4 py-2.5 rounded-xl text-sm text-white placeholder-slate-400
            focus:outline-none transition-all duration-200;
-    background: rgba(0,0,0,0.3);
+    background: rgba(255,255,255,0.06);
     border: 1px solid var(--border);
   }
   .input:focus {

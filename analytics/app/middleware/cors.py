@@ -1,0 +1,18 @@
+"""
+app/middleware/cors.py
+CORS configuration — allows the React frontend (different port/domain)
+to call this API.
+"""
+
+from fastapi.middleware.cors import CORSMiddleware
+from app.config.settings import settings
+
+
+def setup_cors(app):
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_origins,
+        allow_credentials=False,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )

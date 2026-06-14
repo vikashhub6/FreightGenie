@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createShipmentAPI } from "../services/shipmentService";
 
-const INPUT = "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300";
-const LABEL = "block text-xs font-semibold text-gray-600 mb-1";
+const INPUT = "w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-800 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400";
+const LABEL = "block text-xs font-semibold text-gray-700 mb-1";
 const SECTION = "text-xs font-bold text-blue-700 uppercase tracking-widest mb-3 mt-1";
 
 export default function CreateShipmentPage() {

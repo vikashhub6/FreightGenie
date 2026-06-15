@@ -20,6 +20,9 @@ import ShipmentDetailPage from "./features/shipment/pages/ShipmentDetailPage";
 // Exporter (no auth)
 import ExporterUploadPage from "./features/exporter/pages/ExporterUploadPage";
 
+// Admin
+import AdminPanelPage from "./features/admin/pages/AdminPanelPage";
+
 export default function App() {
   return (
     <AuthProvider>
@@ -35,6 +38,7 @@ export default function App() {
           <Route path="/analytics" element={<ProtectedRoute><AnalyticsDashboardPage /></ProtectedRoute>} />
           <Route path="/shipment/create" element={<ProtectedRoute><CreateShipmentPage /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute><AdminPanelPage /></ProtectedRoute>} />
 
           {/* Default */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />

@@ -66,6 +66,7 @@ app.use("/api/documents",     require("./routes/documentRoutes"));
 app.use("/api/email",         require("./routes/emailRoutes"));
 app.use("/api/exporter",      require("./routes/exporterRoutes"));
 app.use("/api/notifications", require("./routes/notificationRoutes"));
+app.use("/api/admin",        require("./routes/adminRoutes"));
 
 const PORT = process.env.PORT || 5123;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}!`));

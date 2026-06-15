@@ -3,12 +3,20 @@ const Shipment = require("../models/Shipment");
 const { sendInviteEmail } = require("../services/emailService");
 const { generateBookingConfirmation } = require("../services/bookingPdfService");
 
+// Helper — company ke sabhi users ke forwarderIds get karo
+async function getCompanyForwarderIds(companyId) {
+  const User = require("../models/User");
+  const users = await User.find({ companyId, status: "active" }).select("_id");
+  return users.map((u) => u._id);
+}
+
 exports.createShipment = async (req, res) => {
   try {
     const { exporterEmail, product, origin, destination, cargoType, shipmentInfo } = req.body;
     const accessToken = crypto.randomBytes(32).toString("hex");
     const shipment = await Shipment.create({
       forwarderId: req.user._id,
+      companyId: req.user.companyId,   // ✅ companyId add
       exporterEmail,
       product,
       origin,
@@ -29,12 +37,11 @@ exports.createShipment = async (req, res) => {
     shipment.statusHistory.push({ status: "invite_sent", message: `Invite sent to ${exporterEmail}` });
     await shipment.save();
 
-    // Auto-generate Booking Confirmation PDF
     try {
       const bookingPath = await generateBookingConfirmation(shipment);
       shipment.bookingPdfPath = bookingPath;
       await shipment.save();
-    } catch(pdfErr) { console.error("Booking PDF error:", pdfErr.message); }
+    } catch (pdfErr) { console.error("Booking PDF error:", pdfErr.message); }
 
     res.status(201).json({ message: "Shipment created & invite sent!", shipment });
   } catch (err) {
@@ -44,7 +51,14 @@ exports.createShipment = async (req, res) => {
 
 exports.getAllShipments = async (req, res) => {
   try {
-    const shipments = await Shipment.find({ forwarderId: req.user._id }).sort({ createdAt: -1 });
+    // ✅ Company ke SABHI active users ki shipments dikhao
+    const forwarderIds = await getCompanyForwarderIds(req.user.companyId);
+    const shipments = await Shipment.find({
+      $or: [
+        { companyId: req.user.companyId },     // new shipments (companyId set hai)
+        { forwarderId: { $in: forwarderIds } }, // old shipments (companyId nahi tha)
+      ]
+    }).sort({ createdAt: -1 });
     res.json(shipments);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -53,7 +67,14 @@ exports.getAllShipments = async (req, res) => {
 
 exports.getShipment = async (req, res) => {
   try {
-    const shipment = await Shipment.findOne({ _id: req.params.id, forwarderId: req.user._id });
+    const forwarderIds = await getCompanyForwarderIds(req.user.companyId);
+    const shipment = await Shipment.findOne({
+      _id: req.params.id,
+      $or: [
+        { companyId: req.user.companyId },
+        { forwarderId: { $in: forwarderIds } },
+      ],
+    });
     if (!shipment) return res.status(404).json({ error: "Not found" });
     res.json(shipment);
   } catch (err) {
@@ -61,13 +82,16 @@ exports.getShipment = async (req, res) => {
   }
 };
 
-// Search shipment by PIN — forwarder only
 exports.searchByPin = async (req, res) => {
   try {
     const { pin } = req.params;
+    const forwarderIds = await getCompanyForwarderIds(req.user.companyId);
     const shipment = await Shipment.findOne({
       exporterPin: pin.toUpperCase(),
-      forwarderId: req.user._id,
+      $or: [
+        { companyId: req.user.companyId },
+        { forwarderId: { $in: forwarderIds } },
+      ],
     });
     if (!shipment) return res.status(404).json({ error: "No shipment found with this PIN" });
     res.json(shipment);
@@ -78,7 +102,11 @@ exports.searchByPin = async (req, res) => {
 
 exports.downloadBookingPDF = async (req, res) => {
   try {
-    const shipment = await Shipment.findOne({ _id: req.params.id, forwarderId: req.user._id });
+    const forwarderIds = await getCompanyForwarderIds(req.user.companyId);
+    const shipment = await Shipment.findOne({
+      _id: req.params.id,
+      $or: [{ companyId: req.user.companyId }, { forwarderId: { $in: forwarderIds } }],
+    });
     if (!shipment) return res.status(404).json({ error: "Not found" });
     if (!shipment.bookingPdfPath) return res.status(404).json({ error: "Booking PDF not generated yet" });
     const fs = require("fs");
@@ -91,7 +119,11 @@ exports.downloadBookingPDF = async (req, res) => {
 
 exports.downloadInvoicePDF = async (req, res) => {
   try {
-    const shipment = await Shipment.findOne({ _id: req.params.id, forwarderId: req.user._id });
+    const forwarderIds = await getCompanyForwarderIds(req.user.companyId);
+    const shipment = await Shipment.findOne({
+      _id: req.params.id,
+      $or: [{ companyId: req.user.companyId }, { forwarderId: { $in: forwarderIds } }],
+    });
     if (!shipment) return res.status(404).json({ error: "Not found" });
     if (!shipment.freightInvoicePath) return res.status(404).json({ error: "Invoice PDF not generated yet" });
     const fs = require("fs");

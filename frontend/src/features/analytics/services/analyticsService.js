@@ -1,14 +1,10 @@
 // features/analytics/services/analyticsService.js
-// Talks to the Flask analytics API (Phase 2), which is a SEPARATE
-// service from the main Node/Express backend — so it gets its own
-// axios instance with its own base URL.
+// FastAPI analytics — SEPARATE service, alag base URL
 
 import axios from "axios";
 
 if (!process.env.REACT_APP_ANALYTICS_URL) {
-  console.error(
-    "Missing REACT_APP_ANALYTICS_URL in environment. Set it in frontend/.env.local"
-  );
+  console.error("Missing REACT_APP_ANALYTICS_URL in environment.");
 }
 
 const analyticsApi = axios.create({
@@ -16,18 +12,22 @@ const analyticsApi = axios.create({
   timeout: 15000,
 });
 
-export async function getInsights() {
-  const { data } = await analyticsApi.get("/insights");
+// ✅ companyId paas karo — sirf apni company ka data aayega
+export async function getInsights(companyId) {
+  const params = companyId ? { companyId } : {};
+  const { data } = await analyticsApi.get("/insights", { params });
   return data;
 }
 
-export async function getChartsData() {
-  const { data } = await analyticsApi.get("/charts");
+export async function getChartsData(companyId) {
+  const params = companyId ? { companyId } : {};
+  const { data } = await analyticsApi.get("/charts", { params });
   return data;
 }
 
-export async function refreshAnalytics() {
-  const { data } = await analyticsApi.post("/refresh");
+export async function refreshAnalytics(companyId) {
+  const params = companyId ? { companyId } : {};
+  const { data } = await analyticsApi.post("/refresh", null, { params });
   return data;
 }
 

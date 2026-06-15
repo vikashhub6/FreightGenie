@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const shipmentSchema = new mongoose.Schema({
   forwarderId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  companyId:   { type: mongoose.Schema.Types.ObjectId, ref: "Company" }, // ✅ multi-tenant filter
   shipmentId:  { type: String, unique: true },
   exporterPin: { type: String, unique: true, sparse: true },
   exporterEmail: { type: String, required: true },

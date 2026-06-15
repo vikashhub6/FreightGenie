@@ -1,8 +1,9 @@
 """
 app/controllers/analytics_controller.py
-Controller layer — request handlers.
+Controller layer — companyId se filter
 """
 
+from typing import Optional
 from fastapi import HTTPException
 from fastapi.responses import FileResponse
 from app.services import analytics_service as service
@@ -35,17 +36,17 @@ def get_chart_image(filename: str):
     return FileResponse(path, media_type="image/png")
 
 
-def get_charts_data():
-    data = service.get_charts_data()
+def get_charts_data(company_id: Optional[str] = None):
+    data = service.get_charts_data(company_id=company_id)
     if data is None:
         raise HTTPException(status_code=404, detail="No shipment data found.")
     return data
 
 
-def refresh_analysis():
+def refresh_analysis(company_id: Optional[str] = None):
     success, message = service.run_refresh()
     if not success:
-        data = service.get_charts_data()
+        data = service.get_charts_data(company_id=company_id)
         if data:
             return {"message": "Data fetched directly from MongoDB", "success": True}
         raise HTTPException(status_code=500, detail=message)

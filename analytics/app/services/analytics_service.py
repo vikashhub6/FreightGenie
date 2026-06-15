@@ -16,9 +16,9 @@ from app.config.database import get_db
 
 # ─── Data Loading ───────────────────────────────────────
 
-def load_dataframe():
+def load_dataframe(company_id=None):
     if settings.use_mongo:
-        df = _load_from_mongo()
+        df = _load_from_mongo(company_id=company_id)
     else:
         df = _load_from_csv()
 
@@ -34,13 +34,22 @@ def load_dataframe():
     return df
 
 
-def _load_from_mongo():
+def _load_from_mongo(company_id=None):
     try:
         db = get_db()
         if db is None:
             return None
 
-        data = list(db[settings.MONGO_COLLECTION].find({"analytics": {"$exists": True}}, {"_id": 0}).sort("createdAt", -1).limit(100))
+        # ✅ Company filter — agar company_id diya to sirf us company ka data
+        query = {"analytics": {"$exists": True}}
+        if company_id:
+            from bson import ObjectId
+            try:
+                query["companyId"] = ObjectId(company_id)
+            except Exception:
+                pass  # Invalid ObjectId — ignore filter
+
+        data = list(db[settings.MONGO_COLLECTION].find(query, {"_id": 0}).sort("createdAt", -1).limit(100))
         if not data:
             return None
 
@@ -102,8 +111,8 @@ def get_chart_path(filename: str):
 
 # ─── Charts Data ────────────────────────────────────────
 
-def get_charts_data() -> dict:
-    df = load_dataframe()
+def get_charts_data(company_id=None) -> dict:
+    df = load_dataframe(company_id=company_id)
     if df is None or df.empty:
         return None
 

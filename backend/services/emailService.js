@@ -4,8 +4,10 @@ require("dotenv").config();
 
 async function getTransporter(forwarderId) {
   const forwarder = await User.findById(forwarderId);
-  const emailUser = forwarder?.companyEmail || process.env.EMAIL_USER;
-  const emailPass = forwarder?.companyEmailPassword || process.env.EMAIL_PASS;
+  const emailUser = forwarder?.companyEmail || process.env.SMTP_USER;
+  const emailPass = forwarder?.companyEmailPassword || process.env.SMTP_PASS;
+  console.log("SMTP_PASS:", process.env.SMTP_PASS ? "FOUND" : "MISSING");
+  console.log("emailPass:", emailPass ? "FOUND" : "MISSING");
   const fromName = forwarder?.company || "FreightGenie";
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -13,6 +15,8 @@ async function getTransporter(forwarderId) {
   });
   return { transporter, emailUser, fromName };
 }
+
+
 
 async function sendInviteEmail(to, accessLink, shipmentInfo, forwarderId) {
   const { transporter, emailUser, fromName } = await getTransporter(forwarderId);

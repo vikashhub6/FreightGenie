@@ -1,5 +1,4 @@
 // features/auth/hooks/useAuth.js
-// All auth LOGIC lives here — login, register, logout
 import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { loginAPI, registerAPI } from "../services/authService";
@@ -14,8 +13,12 @@ const useAuth = () => {
     setError("");
     try {
       const res = await loginAPI(formData);
+      // Pending user — token nahi milega
+      if (res.data.pending) {
+        return { pending: true, message: res.data.message };
+      }
       saveUser(res.data.token, res.data.user);
-      return true;
+      return { success: true };
     } catch (err) {
       setError(err.response?.data?.error || "Login failed");
       return false;
@@ -29,8 +32,12 @@ const useAuth = () => {
     setError("");
     try {
       const res = await registerAPI(formData);
+      // Pending employee — token nahi milega
+      if (res.data.pending) {
+        return { pending: true, message: res.data.message };
+      }
       saveUser(res.data.token, res.data.user);
-      return true;
+      return { success: true };
     } catch (err) {
       setError(err.response?.data?.error || "Registration failed");
       return false;

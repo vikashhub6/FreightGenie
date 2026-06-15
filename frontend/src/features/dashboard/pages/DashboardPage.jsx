@@ -26,9 +26,12 @@ export default function DashboardPage() {
       <Navbar>
         <div className="ml-auto flex items-center gap-3">
           <span className="text-sm hidden sm:block" style={{ color: "var(--text-muted)" }}>
-            {user?.company || user?.name}
+            {user?.companyName || user?.company || user?.name}
           </span>
           <NotificationBell userId={user?._id || user?.id} />
+          {user?.role === "admin" && (
+            <button className="btn-outline text-xs py-1.5 px-3" onClick={() => navigate("/admin")}>🛡️ Admin</button>
+          )}
           <button className="btn-outline text-xs py-1.5 px-3" onClick={() => navigate("/profile")}>⚙ Profile</button>
           <button className="btn-outline text-xs py-1.5 px-3" onClick={logout}>Logout</button>
         </div>

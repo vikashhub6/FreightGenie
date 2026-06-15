@@ -1,3 +1,4 @@
+
 const Shipment = require("../models/Shipment");
 const { sendComplianceEmail, sendMissingDocsAlert } = require("../services/emailService");
 const { generateFreightInvoice } = require("../services/freightInvoiceService");

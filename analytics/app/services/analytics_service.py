@@ -202,7 +202,7 @@ def generate_charts(df, company_id: str = "default") -> dict:
         if "riskLevel" in df.columns:
             risk_order = ["low","medium","high"]
             risk_data  = [df[df["riskLevel"]==r]["complianceScore"].dropna() for r in risk_order]
-            bp = ax2.boxplot(risk_data, labels=risk_order, patch_artist=True)
+            bp = ax2.boxplot(risk_data, tick_labels=risk_order, patch_artist=True)
             for patch, color in zip(bp["boxes"], ["#34d399","#fbbf24","#fb7185"]):
                 patch.set_facecolor(color); patch.set_alpha(0.7)
             ax2.set_title("Score by Risk Level", fontsize=13, fontweight="bold", color="#e2e8f0")

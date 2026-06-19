@@ -7,4 +7,4 @@ uvicorn[standard]>=0.27.0
 python-dotenv>=1.0.0
 reportlab>=4.0.0
 pymongo>=4.6.0
-cloudinary
+cloudinary>=1.36.0

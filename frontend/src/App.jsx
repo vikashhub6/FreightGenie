@@ -26,6 +26,7 @@ export default function App() {
           <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
           <Route path="/analytics" element={<ProtectedRoute><AnalyticsDashboardPage /></ProtectedRoute>} />
           <Route path="/shipment/create" element={<ProtectedRoute><CreateShipmentPage /></ProtectedRoute>} />
+          <Route path="/shipment/:id" element={<ProtectedRoute><ShipmentDetailPage /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute><AdminPanelPage /></ProtectedRoute>} />
 

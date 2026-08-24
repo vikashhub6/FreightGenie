@@ -10,7 +10,7 @@ async function callGroq(systemPrompt, userPrompt) {
   console.log("🌐 [GROQ] Calling API...");
   try {
     const response = await client.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: "openai/gpt-oss-120b",
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user",   content: userPrompt   },
@@ -141,7 +141,7 @@ async function generateEmailDraft(shipment) {
   const ed = shipment.exporterDetails || {};
 
   const response = await client.chat.completions.create({
-    model: "llama-3.3-70b-versatile",
+    model: "openai/gpt-oss-120b",
     temperature: 0.3,
     max_tokens: 1800,
     messages: [
